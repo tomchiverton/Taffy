@@ -568,6 +568,10 @@
 			</cfif>
 		</cfif>
 		<!--- translate unhandledPaths config to regex for easier matching (This is ripped off from FW/1. Thanks, Sean!) --->
+		<cfset local._taffy.settings.unhandledPathsContainsRoot= listContains(local._taffy.settings.unhandledPaths,'/')/>
+		<cfif local._taffy.settings.unhandledPathsContainsRoot>
+		        <cfset local._taffy.settings.unhandledPaths=listDeleteAt(local._taffy.settings.unhandledPaths,listFind(local._taffy.settings.unhandledPaths,'/'))/>
+		</cfif>
 		<cfset local._taffy.settings.unhandledPathsRegex = replaceNoCase(
 			REReplace(local._taffy.settings.unhandledPaths, '(\+|\*|\?|\.|\[|\^|\$|\(|\)|\{|\||\\)', '\\\1', 'all' ),
 			',', '|', 'all' )
@@ -1261,6 +1265,9 @@
 
 	<cffunction name="isUnhandledPathRequest" access="private" returntype="boolean">
 		<cfargument name="targetPath" />
+		<cfif application._taffy.settings.unhandledPathsContainsRoot and listLen(arguments.targetPath,'/') eq 1 >
+		        <cfreturn true>
+		</cfif>
 		<cfreturn REFindNoCase( "^(" & application._taffy.settings.unhandledPathsRegex & ")", arguments.targetPath ) />
 	</cffunction>
 
